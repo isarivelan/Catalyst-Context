@@ -1,0 +1,9 @@
+external_id,type,subtype,description,asset_external_id,industry
+pharma.evt.batch-start,Batch,PhaseStart,Batch HP-DS-24018 inoculation,pharma-unit-bioreactor,pharma
+pharma.evt.do-excursion,Deviation,Process,DO dropped below 30% for 18 minutes,pharma-unit-bioreactor,pharma
+pharma.evt.qc-fail,QualityResult,OOS,Endotoxin OOS on in-process sample,pharma-lab-qc,pharma
+pharma.evt.golden,Batch,Golden,Reference golden batch HP-DS-23991,pharma-unit-bioreactor,pharma
+og.evt.high-vib,Alarm,Condition,Compressor vibration above advisory,og-eq-compressor,oil_gas
+og.evt.well-perturb,Production,WellPerturbation,Well test window for CGR/WGR back-allocation,og-field-harbor,oil_gas
+og.evt.wo,Maintenance,WorkOrder,Inspect K-4101 thrust bearing,og-eq-compressor,oil_gas
+og.evt.pump-seal,Alarm,Integrity,Export pump seal leak rate rising,og-eq-export-pump,oil_gas

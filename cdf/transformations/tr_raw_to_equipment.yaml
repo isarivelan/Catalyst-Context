@@ -1,0 +1,13 @@
+externalId: tr-catalyst-raw-to-equipment
+name: RAW equipment → Equipment instances
+destination:
+  type: instances
+  dataModel:
+    space: catalyst_context
+    externalId: CatalystContext
+    version: v1
+    destinationType: Equipment
+conflictMode: upsert
+isPublic: true
+ignoreNullFields: true
+query: ${file:tr_raw_to_equipment.sql}

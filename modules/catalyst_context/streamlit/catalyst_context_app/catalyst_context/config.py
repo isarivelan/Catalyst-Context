@@ -5,9 +5,12 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
 
-load_dotenv()
+    load_dotenv()
+except ImportError:
+    pass
 
 
 def _first(*keys: str) -> str:
@@ -39,15 +42,7 @@ class CdfSettings:
 
     @property
     def ready(self) -> bool:
-        return all(
-            [
-                self.project,
-                self.cluster,
-                self.tenant_id,
-                self.client_id,
-                self.client_secret,
-            ]
-        )
+        return all([self.project, self.cluster, self.tenant_id, self.client_id, self.client_secret])
 
     @property
     def scopes(self) -> list[str]:

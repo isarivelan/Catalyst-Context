@@ -1,0 +1,8 @@
+externalId: catalyst_context_app
+name: Catalyst Context
+creator: Isarivelan Mani
+description: Process-industry context pack on the CatalystContext data model. Created by Isarivelan Mani.
+published: true
+theme: Light
+entrypoint: main.py
+dataSetExternalId: ds_catalyst_context

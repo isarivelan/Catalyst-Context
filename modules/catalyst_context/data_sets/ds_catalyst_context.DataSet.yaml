@@ -1,0 +1,6 @@
+externalId: ds_catalyst_context
+name: catalyst:context
+description: Data set for the Catalyst Context Streamlit app and related files.
+writeProtected: false
+metadata:
+  origin: catalyst-context

@@ -2,7 +2,8 @@ param(
     [switch]$DryRun,
     [switch]$RunJobs,
     [switch]$SeedInstances,
-    [switch]$SkipModel
+    [switch]$SkipModel,
+    [switch]$SkipApp
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,6 +18,7 @@ if ($DryRun) { $argList += "--dry-run" }
 if ($RunJobs) { $argList += "--run-jobs" }
 if ($SeedInstances) { $argList += "--seed-instances" }
 if ($SkipModel) { $argList += "--skip-model" }
+if ($SkipApp) { $argList += "--skip-app" }
 
 & $python (Join-Path $PSScriptRoot "deploy_cdf.py") @argList
 exit $LASTEXITCODE

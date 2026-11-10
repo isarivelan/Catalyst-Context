@@ -1,0 +1,36 @@
+space: {{ model_space }}
+externalId: EngineeringFile
+name: EngineeringFile
+usedFor: node
+description: P&ID, eBR, datasheet, or certificate of analysis.
+properties:
+  name:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: false
+  mimeType:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  kind:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  equipment:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Equipment this file is attached to.
+indexes:
+  equipmentLookup:
+    properties:
+      - equipment
+    indexType: btree
+    cursorable: true

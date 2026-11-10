@@ -1,0 +1,15 @@
+key,external_id,name,unit,asset_external_id,industry
+pharma.ts.brx.do,pharma.ts.brx.do,Dissolved oxygen,%,pharma-unit-bioreactor,pharma
+pharma.ts.brx.ph,pharma.ts.brx.ph,Culture pH,pH,pharma-unit-bioreactor,pharma
+pharma.ts.brx.temp,pharma.ts.brx.temp,Jacket temperature,°C,pharma-unit-bioreactor,pharma
+pharma.ts.brx.agitation,pharma.ts.brx.agitation,Agitation speed,rpm,pharma-eq-agitator,pharma
+pharma.ts.chr.pressure,pharma.ts.chr.pressure,Column delta-P,bar,pharma-unit-chromatography,pharma
+pharma.ts.chr.uv,pharma.ts.chr.uv,UV 280 nm,mAU,pharma-unit-chromatography,pharma
+pharma.ts.uf.flux,pharma.ts.uf.flux,UF flux,LMH,pharma-unit-ufdf,pharma
+og.ts.k4101.vib,og.ts.k4101.vib,Compressor vibration,mm/s,og-eq-compressor,oil_gas
+og.ts.k4101.suction-p,og.ts.k4101.suction-p,Suction pressure,bar,og-eq-compressor,oil_gas
+og.ts.k4101.discharge-p,og.ts.k4101.discharge-p,Discharge pressure,bar,og-eq-compressor,oil_gas
+og.ts.k4101.bearing-t,og.ts.k4101.bearing-t,Bearing temperature,°C,og-eq-compressor,oil_gas
+og.ts.cooler.out-t,og.ts.cooler.out-t,Suction cooler outlet T,°C,og-eq-suction-cooler,oil_gas
+og.ts.pump.vib,og.ts.pump.vib,Export pump vibration,mm/s,og-eq-export-pump,oil_gas
+og.ts.well.cgr,og.ts.well.cgr,Condensate-gas ratio,stb/MMscf,og-field-harbor,oil_gas

@@ -1,0 +1,47 @@
+space: {{ model_space }}
+externalId: QualityResult
+name: QualityResult
+usedFor: node
+description: LIMS / CoA result linked to a batch.
+properties:
+  test:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  status:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  result:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  batch:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Batch this result belongs to.
+  lab:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: QC lab equipment or area.
+indexes:
+  batchLookup:
+    properties:
+      - batch
+    indexType: btree
+    cursorable: true
+  labLookup:
+    properties:
+      - lab
+    indexType: btree
+    cursorable: true

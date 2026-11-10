@@ -1,0 +1,3 @@
+space: {{ model_space }}
+name: Catalyst Context
+description: Process-industry POC space for life sciences manufacturing and oil & gas operations.

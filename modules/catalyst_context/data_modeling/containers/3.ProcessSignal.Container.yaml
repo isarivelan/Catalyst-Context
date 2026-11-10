@@ -1,0 +1,42 @@
+space: {{ model_space }}
+externalId: ProcessSignal
+name: ProcessSignal
+usedFor: node
+description: Historian tag linked to equipment.
+properties:
+  name:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: false
+  unit:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  externalTag:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  industry:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  equipment:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Equipment this tag belongs to.
+indexes:
+  equipmentLookup:
+    properties:
+      - equipment
+    indexType: btree
+    cursorable: true

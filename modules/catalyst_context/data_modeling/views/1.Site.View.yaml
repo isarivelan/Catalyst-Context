@@ -1,0 +1,30 @@
+space: {{ model_space }}
+externalId: Site
+version: {{ model_version }}
+name: Site
+description: ISA-95 site or oil-and-gas field.
+properties:
+  name:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Site
+    containerPropertyIdentifier: name
+  industry:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Site
+    containerPropertyIdentifier: industry
+  description:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Site
+    containerPropertyIdentifier: description
+  region:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Site
+    containerPropertyIdentifier: region

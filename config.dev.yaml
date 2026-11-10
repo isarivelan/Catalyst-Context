@@ -1,0 +1,15 @@
+environment:
+  name: dev
+  project: emb-vtsa-dev
+  validation-type: dev
+  selected:
+    - modules/catalyst_context
+
+variables:
+  modules:
+    catalyst_context:
+      model_space: catalyst_context
+      instance_space: catalyst_context
+      model_external_id: CatalystContext
+      model_version: v1
+      raw_db: catalyst_context_raw

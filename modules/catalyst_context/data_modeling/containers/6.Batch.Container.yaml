@@ -1,0 +1,51 @@
+space: {{ model_space }}
+externalId: Batch
+name: Batch
+usedFor: node
+description: ISA-88 batch instance (life sciences).
+properties:
+  batchId:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: false
+  recipe:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  status:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  yieldPct:
+    type:
+      type: float64
+      list: false
+    nullable: true
+  cycleHours:
+    type:
+      type: float64
+      list: false
+    nullable: true
+  deviations:
+    type:
+      type: int32
+      list: false
+    nullable: true
+  unit:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Process unit that ran the batch.
+indexes:
+  unitLookup:
+    properties:
+      - unit
+    indexType: btree
+    cursorable: true

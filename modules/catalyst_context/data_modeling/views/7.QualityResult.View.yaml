@@ -1,0 +1,46 @@
+space: {{ model_space }}
+externalId: QualityResult
+version: {{ model_version }}
+name: QualityResult
+description: LIMS / CoA result linked to a batch.
+properties:
+  test:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: QualityResult
+    containerPropertyIdentifier: test
+  status:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: QualityResult
+    containerPropertyIdentifier: status
+  result:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: QualityResult
+    containerPropertyIdentifier: result
+  batch:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: QualityResult
+    containerPropertyIdentifier: batch
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Batch
+      version: {{ model_version }}
+  lab:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: QualityResult
+    containerPropertyIdentifier: lab
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Equipment
+      version: {{ model_version }}

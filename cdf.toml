@@ -1,0 +1,14 @@
+[cdf]
+default_organization_dir = "."
+default_env = "dev"
+file_encoding = "utf-8"
+
+[plugins]
+run = true
+pull = true
+dump = true
+data = true
+
+[modules]
+# Pin to a Cognite Toolkit 0.9.x CLI. Run `cdf modules upgrade` if your CLI is newer.
+version = "0.9.0"

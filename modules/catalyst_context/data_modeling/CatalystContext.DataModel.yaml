@@ -1,0 +1,37 @@
+space: {{ model_space }}
+externalId: {{ model_external_id }}
+version: {{ model_version }}
+name: Catalyst Context
+description: >
+  Shared process-industry model for life sciences manufacturing and oil & gas
+  operations. Maps ISA-95/ISA-88 (site, unit, batch, quality) and energy
+  rotating-equipment context (installation, equipment, process event, P&ID).
+views:
+  - type: view
+    space: {{ model_space }}
+    externalId: Site
+    version: {{ model_version }}
+  - type: view
+    space: {{ model_space }}
+    externalId: Equipment
+    version: {{ model_version }}
+  - type: view
+    space: {{ model_space }}
+    externalId: ProcessSignal
+    version: {{ model_version }}
+  - type: view
+    space: {{ model_space }}
+    externalId: ProcessEvent
+    version: {{ model_version }}
+  - type: view
+    space: {{ model_space }}
+    externalId: EngineeringFile
+    version: {{ model_version }}
+  - type: view
+    space: {{ model_space }}
+    externalId: Batch
+    version: {{ model_version }}
+  - type: view
+    space: {{ model_space }}
+    externalId: QualityResult
+    version: {{ model_version }}

@@ -1,0 +1,13 @@
+externalId: tr-catalyst-raw-to-events
+name: RAW events → ProcessEvent instances
+destination:
+  type: instances
+  instanceSpace: {{ instance_space }}
+  dataModel:
+    space: {{ model_space }}
+    externalId: {{ model_external_id }}
+    version: {{ model_version }}
+    destinationType: ProcessEvent
+conflictMode: upsert
+isPublic: true
+ignoreNullFields: true

@@ -1,0 +1,58 @@
+space: {{ model_space }}
+externalId: Equipment
+version: {{ model_version }}
+name: Equipment
+description: Unit, equipment module, or rotating equipment.
+properties:
+  name:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: name
+  kind:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: kind
+  industry:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: industry
+  description:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: description
+  criticality:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: criticality
+  parent:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: parent
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Equipment
+      version: {{ model_version }}
+  site:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Equipment
+    containerPropertyIdentifier: site
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Site
+      version: {{ model_version }}

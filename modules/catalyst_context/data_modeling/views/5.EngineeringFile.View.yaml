@@ -1,0 +1,35 @@
+space: {{ model_space }}
+externalId: EngineeringFile
+version: {{ model_version }}
+name: EngineeringFile
+description: P&ID, eBR, datasheet, or certificate of analysis.
+properties:
+  name:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: EngineeringFile
+    containerPropertyIdentifier: name
+  mimeType:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: EngineeringFile
+    containerPropertyIdentifier: mimeType
+  kind:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: EngineeringFile
+    containerPropertyIdentifier: kind
+  equipment:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: EngineeringFile
+    containerPropertyIdentifier: equipment
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Equipment
+      version: {{ model_version }}

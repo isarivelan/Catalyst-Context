@@ -1,3 +1,5 @@
+# Convenience copy. Canonical Toolkit resources:
+# modules/catalyst_context/data_modeling/
 space: catalyst_context
 externalId: CatalystContext
 version: v1
@@ -7,24 +9,31 @@ description: >
   operations. Maps ISA-95/ISA-88 (site, unit, batch, quality) and energy
   rotating-equipment context (installation, equipment, process event, P&ID).
 views:
-  - space: catalyst_context
+  - type: view
+    space: catalyst_context
     externalId: Site
     version: v1
-  - space: catalyst_context
+  - type: view
+    space: catalyst_context
     externalId: Equipment
     version: v1
-  - space: catalyst_context
+  - type: view
+    space: catalyst_context
     externalId: ProcessSignal
     version: v1
-  - space: catalyst_context
-    externalId: Batch
-    version: v1
-  - space: catalyst_context
-    externalId: QualityResult
-    version: v1
-  - space: catalyst_context
+  - type: view
+    space: catalyst_context
     externalId: ProcessEvent
     version: v1
-  - space: catalyst_context
+  - type: view
+    space: catalyst_context
     externalId: EngineeringFile
+    version: v1
+  - type: view
+    space: catalyst_context
+    externalId: Batch
+    version: v1
+  - type: view
+    space: catalyst_context
+    externalId: QualityResult
     version: v1

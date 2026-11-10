@@ -36,43 +36,66 @@ Demo data is synthetic. It is shaped like CDF resources you would load from hist
 | Relationships | 8 | asset ↔ signal ↔ event ↔ file |
 | Batches | 3 | golden / in-review / released |
 
-## Data model and transformation jobs
+## Data model (space, containers, views)
 
-These were **not deployed** to a live CDF project (no project credentials in this POC). They are **local definitions** you can publish:
+The earlier GraphQL file only described *types*. CDF Data Modeling stores properties in **containers**, exposes them through **views**, and groups views in a **data model** — all inside a **space**. Those resources now live in a Cognite Toolkit module:
 
-- Data model `catalyst_context` / `CatalystContext` `v1` — 7 views in `cdf/data_models/`
-- RAW seed tables in `cdf/raw/` (`equipment.csv`, `timeseries.csv`, `events.csv`)
-- Three transformation jobs in `cdf/transformations/`:
-  - `tr-catalyst-raw-to-equipment`
-  - `tr-catalyst-raw-to-signals`
-  - `tr-catalyst-raw-to-events`
+```text
+modules/catalyst_context/
+  data_modeling/
+    catalyst_context.Space.yaml
+    containers/*.Container.yaml    # 7 containers
+    views/*.View.yaml              # 7 views
+    CatalystContext.DataModel.yaml
+  raw/                             # seed tables
+  transformations/                 # RAW → instances
+```
 
-Run the deploy script yourself (it will not run unless `.env` is filled):
+| Resource | External ID |
+| --- | --- |
+| Space | `catalyst_context` |
+| Data model | `CatalystContext` `v1` |
+| Containers / views | `Site`, `Equipment`, `ProcessSignal`, `ProcessEvent`, `EngineeringFile`, `Batch`, `QualityResult` |
+
+Direct relations: `Equipment.site` → Site, `Equipment.parent` → Equipment, `ProcessSignal|ProcessEvent|EngineeringFile.equipment` → Equipment, `Batch.unit` → Equipment, `QualityResult.batch` → Batch.
+
+`cdf/data_models/CatalystContext.graphql` is documentation of the same types. Deploy applies YAML containers/views, not GraphQL DML.
+
+## Deploy to CDF
+
+Use the same Entra client-credentials names as cognite-toolkit (`IDP_*`). Copy `.env.example` to `.env` and fill tenant, client id, and secret.
 
 ```powershell
 cd c:\code\catalyst-context
 copy .env.example .env
-# fill CDF_PROJECT, CDF_CLUSTER, CDF_TENANT_ID, CDF_CLIENT_ID, CDF_CLIENT_SECRET
 
-.\.venv\Scripts\python.exe scripts\deploy_cdf.py --dry-run
-.\.venv\Scripts\python.exe scripts\deploy_cdf.py
-.\.venv\Scripts\python.exe scripts\deploy_cdf.py --run-jobs --seed-instances
+python scripts/deploy_cdf.py --dry-run
+python scripts/deploy_cdf.py
+python scripts/deploy_cdf.py --run-jobs --seed-instances
 ```
 
-Or: `.\scripts\deploy_cdf.ps1 -RunJobs -SeedInstances`
+Or Toolkit:
 
-The script applies space `catalyst_context`, loads RAW tables, publishes GraphQL model `CatalystContext` `v1`, and upserts the three transformation jobs. `--run-jobs` starts those jobs. `--seed-instances` also writes the same rows as data-model nodes through the SDK (useful if Transformations ACL is not granted yet).
+```powershell
+cdf build --env dev
+cdf deploy --env dev
+```
+
+`config.dev.yaml` targets project `emb-vtsa-dev` on cluster `aw-was-gp-001`.
+
+The Python script applies space → containers → views → data model `CatalystContext` `v1`, loads RAW, and upserts four transformation jobs (`tr-catalyst-raw-to-sites|equipment|signals|events`). `--seed-instances` writes nodes through the SDK if Transformations ACL is not granted yet.
 
 ## Live CDF
 
 OIDC client-credentials flow ([Cognite Python auth](https://docs.cognite.com/dev/sdks/python/python_auth_oidc)):
 
 ```text
-CDF_PROJECT=
-CDF_CLUSTER=api
-CDF_TENANT_ID=
-CDF_CLIENT_ID=
-CDF_CLIENT_SECRET=
+CDF_PROJECT=emb-vtsa-dev
+CDF_CLUSTER=aw-was-gp-001
+CDF_URL=https://aw-was-gp-001.cognitedata.com
+IDP_TENANT_ID=
+IDP_CLIENT_ID=
+IDP_CLIENT_SECRET=
 ```
 
 Live mode lists classic **assets, time series, events, files, relationships**. The GraphQL/YAML model in `cdf/` is the intended Data Modeling target once you deploy.
@@ -87,6 +110,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 copy .env.example .env
+# fill IDP_TENANT_ID, IDP_CLIENT_ID, IDP_CLIENT_SECRET (project/cluster already set for emb-vtsa-dev)
 streamlit run app.py
 ```
 
@@ -96,14 +120,14 @@ Stay on **Guided demo** until `.env` is filled.
 
 ```text
 app.py                         Streamlit flow
-cdf/data_models/               CatalystContext GraphQL + YAML
-cdf/transformations/           3 SQL jobs (RAW → instances)
-cdf/raw/                       Seed CSVs for those jobs
+modules/catalyst_context/      Toolkit module (space, containers, views, RAW, jobs)
+cdf/data_models/               GraphQL companion of the same types
+config.dev.yaml                Toolkit env for emb-vtsa-dev
 src/catalyst_context/
 ```
 
 ## Suggested next slice
 
-- Publish `cdf/` into a real CDF project (space + RAW + transformations)  
+- Deploy `modules/catalyst_context` into emb-vtsa-dev (space + containers + views + RAW + transformations)  
 - File download / P&ID overlay for a selected tag  
 - Charts Agent or Atlas AI on the exported context pack

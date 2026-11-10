@@ -1,0 +1,41 @@
+space: {{ model_space }}
+externalId: ProcessSignal
+version: {{ model_version }}
+name: ProcessSignal
+description: Historian tag linked to equipment.
+properties:
+  name:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessSignal
+    containerPropertyIdentifier: name
+  unit:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessSignal
+    containerPropertyIdentifier: unit
+  externalTag:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessSignal
+    containerPropertyIdentifier: externalTag
+  industry:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessSignal
+    containerPropertyIdentifier: industry
+  equipment:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessSignal
+    containerPropertyIdentifier: equipment
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Equipment
+      version: {{ model_version }}

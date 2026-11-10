@@ -1,0 +1,30 @@
+space: {{ model_space }}
+externalId: Site
+name: Site
+usedFor: node
+description: ISA-95 site or oil-and-gas field / installation root.
+properties:
+  name:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: false
+  industry:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  description:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  region:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true

@@ -1,0 +1,42 @@
+space: {{ model_space }}
+externalId: ProcessEvent
+name: ProcessEvent
+usedFor: node
+description: Deviation, alarm, well perturbation, or work order.
+properties:
+  eventType:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  subtype:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  description:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  industry:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  equipment:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Equipment this event is raised against.
+indexes:
+  equipmentLookup:
+    properties:
+      - equipment
+    indexType: btree
+    cursorable: true

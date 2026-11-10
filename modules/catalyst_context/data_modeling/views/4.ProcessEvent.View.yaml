@@ -1,0 +1,41 @@
+space: {{ model_space }}
+externalId: ProcessEvent
+version: {{ model_version }}
+name: ProcessEvent
+description: Deviation, alarm, well perturbation, or work order.
+properties:
+  eventType:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessEvent
+    containerPropertyIdentifier: eventType
+  subtype:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessEvent
+    containerPropertyIdentifier: subtype
+  description:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessEvent
+    containerPropertyIdentifier: description
+  industry:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessEvent
+    containerPropertyIdentifier: industry
+  equipment:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: ProcessEvent
+    containerPropertyIdentifier: equipment
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Equipment
+      version: {{ model_version }}

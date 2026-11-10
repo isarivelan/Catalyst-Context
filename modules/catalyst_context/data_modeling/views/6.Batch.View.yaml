@@ -1,0 +1,53 @@
+space: {{ model_space }}
+externalId: Batch
+version: {{ model_version }}
+name: Batch
+description: ISA-88 batch instance.
+properties:
+  batchId:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: batchId
+  recipe:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: recipe
+  status:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: status
+  yieldPct:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: yieldPct
+  cycleHours:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: cycleHours
+  deviations:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: deviations
+  unit:
+    container:
+      type: container
+      space: {{ model_space }}
+      externalId: Batch
+    containerPropertyIdentifier: unit
+    source:
+      type: view
+      space: {{ model_space }}
+      externalId: Equipment
+      version: {{ model_version }}

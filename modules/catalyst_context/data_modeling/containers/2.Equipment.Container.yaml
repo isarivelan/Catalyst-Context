@@ -1,0 +1,59 @@
+space: {{ model_space }}
+externalId: Equipment
+name: Equipment
+usedFor: node
+description: Unit, equipment module, or rotating equipment in the site graph.
+properties:
+  name:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: false
+  kind:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  industry:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  description:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  criticality:
+    type:
+      type: text
+      list: false
+      collation: ucs_basic
+    nullable: true
+  parent:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Parent equipment or area in the hierarchy.
+  site:
+    type:
+      type: direct
+      list: false
+    nullable: true
+    description: Owning Site node.
+indexes:
+  parentLookup:
+    properties:
+      - parent
+    indexType: btree
+    cursorable: true
+  siteLookup:
+    properties:
+      - site
+    indexType: btree
+    cursorable: true

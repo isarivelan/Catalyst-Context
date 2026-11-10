@@ -206,14 +206,14 @@ def step_lens() -> None:
 def step_connect() -> None:
     header(
         "Connect the industrial graph",
-        "Demo catalog is already loaded. Data model and transformation jobs live in `/cdf` as definitions — they are not published to a CDF project until you deploy them.",
+        "Demo catalog is already loaded. Space, containers, views, and the data model live in `modules/catalyst_context` — they are not published until you deploy.",
     )
     deployed = artifacts_present()
     st.markdown(
         '<div class="pipe">'
         "<span>RAW CSV</span><em>→</em>"
-        "<span>3 transformation jobs</span><em>→</em>"
-        "<span>CatalystContext v1 · 7 views</span><em>→</em>"
+        "<span>4 transformation jobs</span><em>→</em>"
+        "<span>CatalystContext v1 · 7 containers · 7 views</span><em>→</em>"
         "<span>Streamlit flow</span>"
         "</div>",
         unsafe_allow_html=True,
@@ -222,7 +222,7 @@ def step_connect() -> None:
         [
             ("Space", DATA_MODEL["space"]),
             ("Data model", f"{DATA_MODEL['external_id']} {DATA_MODEL['version']}"),
-            ("Views", len(DATA_MODEL["views"])),
+            ("Containers / views", f"{len(DATA_MODEL['containers'])} / {len(DATA_MODEL['views'])}"),
             ("Transform jobs", len(TRANSFORMATION_JOBS)),
         ]
     )
@@ -230,7 +230,7 @@ def step_connect() -> None:
 
     left, right = st.columns((1.05, 1))
     with left:
-        st.markdown("**Data model views**")
+        st.markdown("**Containers and views**")
         st.dataframe(
             pd.DataFrame(DATA_MODEL["views"]),
             hide_index=True,
@@ -276,7 +276,10 @@ def step_connect() -> None:
     c2.markdown(f'<div class="kpi"><div class="label">Cluster</div><div class="value">{cfg.cluster or "—"}</div></div>', unsafe_allow_html=True)
     c3.markdown(f'<div class="kpi"><div class="label">Tenant</div><div class="value">{(cfg.tenant_id[:8] + "…") if cfg.tenant_id else "—"}</div></div>', unsafe_allow_html=True)
     if not cfg.ready:
-        st.warning("Copy `.env.example` to `.env` and set CDF_PROJECT, CDF_CLUSTER, CDF_TENANT_ID, CDF_CLIENT_ID, CDF_CLIENT_SECRET.")
+        st.warning(
+            "Copy `.env.example` to `.env` and set CDF_PROJECT, CDF_CLUSTER, "
+            "IDP_TENANT_ID, IDP_CLIENT_ID, IDP_CLIENT_SECRET."
+        )
         return
     if st.button("Inspect token and load catalog", type="primary"):
         try:

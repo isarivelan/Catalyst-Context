@@ -38,13 +38,20 @@ def connect(settings: CdfSettings):
     from cognite.client.credentials import OAuthClientCredentials
 
     if not settings.ready:
-        raise ValueError("CDF settings are incomplete. Fill CDF_PROJECT, cluster, tenant, client id/secret.")
+        raise ValueError(
+            "CDF settings are incomplete. Set CDF_PROJECT, CDF_CLUSTER, and "
+            "IDP_TENANT_ID / IDP_CLIENT_ID / IDP_CLIENT_SECRET (or CDF_* aliases)."
+        )
 
+    token_args = {}
+    if settings.audience:
+        token_args["audience"] = settings.audience
     creds = OAuthClientCredentials(
         token_url=settings.token_url,
         client_id=settings.client_id,
         client_secret=settings.client_secret,
         scopes=settings.scopes,
+        **token_args,
     )
     config = ClientConfig(
         client_name="catalyst-context-poc",

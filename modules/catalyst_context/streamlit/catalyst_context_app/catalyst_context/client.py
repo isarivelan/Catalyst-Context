@@ -10,10 +10,15 @@ from catalyst_context.config import CdfSettings, load_cdf_settings
 
 
 def get_client():
-    from cognite.client import CogniteClient
+    try:
+        from cognite.client import CogniteClient
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "Package 'cognite-sdk' is not installed in this Streamlit runtime. "
+            "Add 'cognite-sdk' to the app requirements.txt and republish."
+        ) from exc
 
-    # Fusion Streamlit injects the signed-in user. Try that first so the hosted
-    # app never depends on client-secret env vars or extra pip wheels.
+    # Fusion Streamlit injects the signed-in user. Try that first.
     try:
         client = CogniteClient()
         if getattr(client.config, "project", None):

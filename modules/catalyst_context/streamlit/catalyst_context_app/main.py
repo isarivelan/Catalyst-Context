@@ -39,15 +39,29 @@ CSS = """
 html, body, [class*="css"] { font-family: Source Sans 3, Segoe UI, sans-serif; }
 [data-testid="stHeader"] { background: transparent; height: 0; }
 .block-container { padding-top: 1.6rem; padding-bottom: 3rem; max-width: 1180px; }
+[data-testid="stSidebar"] { background: #1c1917 !important; }
+[data-testid="stSidebar"] * { color: #fafaf9 !important; }
+[data-testid="stSidebar"] .stCaption, [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p { color: #d6d3d1 !important; }
+[data-testid="stSidebar"] button {
+  background: #292524 !important;
+  color: #fafaf9 !important;
+  border: 1px solid #57534e !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+}
+[data-testid="stSidebar"] button p { color: #fafaf9 !important; }
+[data-testid="stSidebar"] button[kind="primary"] {
+  background: #0f766e !important;
+  border-color: #14b8a6 !important;
+  color: #ecfdf5 !important;
+}
+[data-testid="stSidebar"] button[kind="primary"] p { color: #ecfdf5 !important; }
 .brand-mark { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: #d6d3d1; font-weight: 600; }
-.brand-title { font-size: 1.35rem; margin: 0.2rem 0 0.15rem 0; color: #fffbeb; }
+.brand-title { font-size: 1.35rem; margin: 0.2rem 0 0.35rem 0; color: #fffbeb; font-weight: 700; }
 .hero-kicker { letter-spacing: 0.18em; text-transform: uppercase; color: #0f766e; font-size: 0.75rem; font-weight: 700; }
 .hero-title { font-size: 2rem; font-weight: 700; margin: 0.2rem 0 0.4rem 0; line-height: 1.15; color: #1c1917; }
 .hero-sub { color: #57534e; font-size: 1.05rem; margin-bottom: 1.2rem; max-width: 46rem; }
-.step-rail { background: #0c0a09; border: 1px solid #44403c; border-radius: 16px; padding: 0.75rem; margin: 0.8rem 0 1rem 0; }
-.step-item { padding: 0.5rem 0.65rem; border-radius: 10px; margin-bottom: 0.28rem; font-size: 0.88rem; color: #a8a29e; }
-.step-item.active { background: #0f766e; color: #ecfdf5; font-weight: 700; }
-.step-item.done { color: #5eead4; }
 .kpi { background: #fffcf7; border: 1px solid #e7e5e4; border-radius: 14px; padding: 0.9rem 1rem; }
 .kpi .label { color: #78716c; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
 .kpi .value { font-size: 1.45rem; font-weight: 700; color: #1c1917; }
@@ -113,25 +127,26 @@ def sidebar() -> None:
         st.caption(f"Created by {CREATOR}")
         current = st.session_state.step
         current_idx = STEP_KEYS.index(current)
-        html = ['<div class="step-rail">']
+        st.caption("Go to step")
         for i, (key, label) in enumerate(FLOW_STEPS):
-            cls = "step-item"
-            if key == current:
-                cls += " active"
-            elif i < current_idx:
-                cls += " done"
-            html.append(f'<div class="{cls}">{i + 1:02d}  {label}</div>')
-        html.append("</div>")
-        st.markdown("\n".join(html), unsafe_allow_html=True)
+            marker = "●" if key == current else ("✓" if i < current_idx else "○")
+            if st.button(
+                f"{marker}  {i + 1:02d}  {label}",
+                key=f"nav_{key}",
+                type="primary" if key == current else "secondary",
+                use_container_width=True,
+            ):
+                if key != current:
+                    goto(key)
         st.caption("Industry lens")
         st.write(PROFILES[st.session_state.industry].title)
         st.caption("Source")
         st.write(f"{SPACE} / {MODEL_ID} {MODEL_VERSION}")
         cols = st.columns(2)
-        idx = STEP_KEYS.index(st.session_state.step)
-        if idx > 0 and cols[0].button("Back", use_container_width=True):
+        idx = current_idx
+        if idx > 0 and cols[0].button("Back", use_container_width=True, key="nav_back"):
             goto(STEP_KEYS[idx - 1])
-        if idx < len(STEP_KEYS) - 1 and cols[1].button("Next", use_container_width=True, type="primary"):
+        if idx < len(STEP_KEYS) - 1 and cols[1].button("Next", use_container_width=True, type="primary", key="nav_next"):
             goto(STEP_KEYS[idx + 1])
 
 

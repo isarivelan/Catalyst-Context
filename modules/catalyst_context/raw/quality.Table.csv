@@ -1,0 +1,5 @@
+key,external_id,test,status,result,batch_external_id,lab_external_id,industry
+pharma.qc.endotoxin.current,pharma.qc.endotoxin.current,Endotoxin,OOS,0.8 EU/mg,pharma.batch.current,pharma-lab-qc,pharma
+pharma.qc.ph.current,pharma.qc.ph.current,pH,Pass,7.05,pharma.batch.current,pharma-lab-qc,pharma
+pharma.qc.endotoxin.golden,pharma.qc.endotoxin.golden,Endotoxin,Pass,0.12 EU/mg,pharma.batch.golden,pharma-lab-qc,pharma
+pharma.qc.appearance,pharma.qc.appearance,Appearance,Pass,Clear colorless,pharma.batch.golden,pharma-lab-qc,pharma

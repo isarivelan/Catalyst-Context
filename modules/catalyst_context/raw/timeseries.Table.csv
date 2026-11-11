@@ -3,9 +3,18 @@ pharma.ts.brx.do,pharma.ts.brx.do,Dissolved oxygen,%,pharma-unit-bioreactor,phar
 pharma.ts.brx.ph,pharma.ts.brx.ph,Culture pH,pH,pharma-unit-bioreactor,pharma
 pharma.ts.brx.temp,pharma.ts.brx.temp,Jacket temperature,°C,pharma-unit-bioreactor,pharma
 pharma.ts.brx.agitation,pharma.ts.brx.agitation,Agitation speed,rpm,pharma-eq-agitator,pharma
+pharma.ts.brx.vcd,pharma.ts.brx.vcd,Viable cell density,10^6 cells/mL,pharma-unit-bioreactor,pharma
+pharma.ts.brx.sparge,pharma.ts.brx.sparge,Air sparge,L/min,pharma-unit-bioreactor,pharma
+pharma.ts.brx.antifoam,pharma.ts.brx.antifoam,Antifoam additions,mL,pharma-unit-bioreactor,pharma
+pharma.ts.harvest.turbidity,pharma.ts.harvest.turbidity,Harvest turbidity,NTU,pharma-unit-harvest,pharma
+pharma.ts.media.temp,pharma.ts.media.temp,Media tank temperature,°C,pharma-unit-media,pharma
 pharma.ts.chr.pressure,pharma.ts.chr.pressure,Column delta-P,bar,pharma-unit-chromatography,pharma
 pharma.ts.chr.uv,pharma.ts.chr.uv,UV 280 nm,mAU,pharma-unit-chromatography,pharma
 pharma.ts.uf.flux,pharma.ts.uf.flux,UF flux,LMH,pharma-unit-ufdf,pharma
+pharma.ts.vf09.flux,pharma.ts.vf09.flux,Viral filter flux,LMH,pharma-unit-vf,pharma
+pharma.ts.vf.speed,pharma.ts.vf.speed,Filler speed,vials/min,pharma-unit-filler,pharma
+pharma.ts.lyo.shelf,pharma.ts.lyo.shelf,Lyo shelf temperature,°C,pharma-unit-lyo,pharma
+pharma.ts.lyo.vac,pharma.ts.lyo.vac,Lyo chamber vacuum,mbar,pharma-unit-lyo,pharma
 og.ts.k4101.vib,og.ts.k4101.vib,Compressor vibration,mm/s,og-eq-compressor,oil_gas
 og.ts.k4101.suction-p,og.ts.k4101.suction-p,Suction pressure,bar,og-eq-compressor,oil_gas
 og.ts.k4101.discharge-p,og.ts.k4101.discharge-p,Discharge pressure,bar,og-eq-compressor,oil_gas

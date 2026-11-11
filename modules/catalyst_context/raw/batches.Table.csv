@@ -1,0 +1,5 @@
+key,external_id,batch_id,recipe,status,yield_pct,cycle_hours,deviations,unit_external_id,industry
+pharma.batch.golden,pharma.batch.golden,HP-DS-23991,mAb-FedBatch-v4,Released,92.4,168,0,pharma-unit-bioreactor,pharma
+pharma.batch.current,pharma.batch.current,HP-DS-24018,mAb-FedBatch-v4,InProcess,81.1,176,2,pharma-unit-bioreactor,pharma
+pharma.batch.prior,pharma.batch.prior,HP-DS-24005,mAb-FedBatch-v4,Released,88.7,171,1,pharma-unit-bioreactor,pharma
+pharma.batch.fill,pharma.batch.fill,HP-DP-1188,Vial-Fill-2mL,InProcess,96.0,14,1,pharma-unit-filler,pharma

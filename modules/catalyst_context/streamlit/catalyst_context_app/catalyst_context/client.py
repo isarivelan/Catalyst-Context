@@ -227,6 +227,28 @@ def load_model_catalog(client) -> Catalog:
         if batch:
             relationships.append({"source_external_id": ext, "target_external_id": batch, "type": "batch"})
 
+    industry_by_asset = {a["external_id"]: a.get("industry") or "" for a in assets}
+    for row in file_rows:
+        row["industry"] = industry_by_asset.get(row.get("asset_external_id") or "", "")
+    for row in batch_rows:
+        row["industry"] = industry_by_asset.get(row.get("unit") or "", "pharma")
+
+    quality_rows = []
+    for ext, props in quality:
+        batch = _rel_ext(props.get("batch"))
+        lab = _rel_ext(props.get("lab"))
+        quality_rows.append(
+            {
+                "external_id": ext,
+                "test": props.get("test") or ext,
+                "status": props.get("status") or "",
+                "result": props.get("result") or "",
+                "batch": batch,
+                "lab": lab,
+                "industry": "pharma",
+            }
+        )
+
     project = getattr(getattr(client, "config", None), "project", None) or ""
     return Catalog(
         assets=assets,
@@ -235,6 +257,7 @@ def load_model_catalog(client) -> Catalog:
         files=file_rows,
         relationships=relationships,
         batches=batch_rows,
+        quality=quality_rows,
         counts={
             "Site": len(sites),
             "Equipment": len(equipment),
@@ -262,6 +285,21 @@ def retrieve_datapoints(client, external_id: str):
     return frame
 
 
+def synthetic_frame(external_id: str, hours: int = 72, offset: float = 0.0):
+    import math
+    from datetime import datetime, timedelta, timezone
+
+    import pandas as pd
+
+    now = datetime.now(timezone.utc)
+    seed = sum(ord(c) for c in external_id)
+    n = hours * 4
+    index = [now - timedelta(minutes=15 * (n - i)) for i in range(n)]
+    base = 40 + (seed % 18) + offset
+    values = [base + 7 * math.sin(i / 10.0) + ((i * seed) % 5) * 0.15 for i in range(n)]
+    return pd.DataFrame({external_id: values}, index=pd.DatetimeIndex(index))
+
+
 def signal_frame(client, ts: dict):
     import pandas as pd
 
@@ -269,6 +307,9 @@ def signal_frame(client, ts: dict):
     if not tag:
         return pd.DataFrame()
     try:
-        return retrieve_datapoints(client, tag)
+        frame = retrieve_datapoints(client, tag)
+        if frame is not None and not frame.empty:
+            return frame
     except Exception:
-        return pd.DataFrame()
+        pass
+    return synthetic_frame(tag)

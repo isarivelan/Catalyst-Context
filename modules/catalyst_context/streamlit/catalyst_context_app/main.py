@@ -33,7 +33,14 @@ from catalyst_context.catalog import (
     roots,
     timeseries_csv,
 )
-from catalyst_context.client import get_client, load_model_catalog, signal_frame
+from catalyst_context.atlas import (
+    ATLAS_AGENT_ID,
+    ATLAS_AGENT_NAME,
+    atlas_chat,
+    catalog_fallback,
+    ensure_atlas_agent,
+)
+from catalyst_context.client import get_client, load_model_catalog, signal_frame, synthetic_frame
 from catalyst_context.profiles import FLOW_STEPS, PROFILES
 
 st.set_page_config(page_title="Catalyst Context", layout="wide", initial_sidebar_state="expanded")
@@ -93,6 +100,9 @@ def init_state() -> None:
     st.session_state.setdefault("industry", "both")
     st.session_state.setdefault("client", None)
     st.session_state.setdefault("selected_asset", None)
+    st.session_state.setdefault("atlas_messages", [])
+    st.session_state.setdefault("atlas_cursor", None)
+    st.session_state.setdefault("atlas_ready", None)
 
 
 def goto(step: str) -> None:
@@ -205,6 +215,7 @@ def step_model() -> None:
             ("Site", counts.get("Site", 0)),
             ("Equipment", counts.get("Equipment", 0)),
             ("Signals", counts.get("ProcessSignal", 0)),
+            ("Files", counts.get("EngineeringFile", 0)),
         ]
     )
     if sum(counts.values()) == 0:
@@ -390,8 +401,8 @@ def step_signals() -> None:
     if st.session_state.industry in {"pharma", "both"} and cat.batches:
         st.markdown("**Batch instances**")
         st.dataframe(pd.DataFrame(cat.batches), hide_index=True, use_container_width=True)
-    if st.button("Continue to quality and integrity", type="primary"):
-        goto("integrity")
+    if st.button("Open canvas", type="primary"):
+        goto("canvas")
 
 
 def step_integrity() -> None:
@@ -430,6 +441,9 @@ def step_integrity() -> None:
             st.dataframe(file_df[cols], hide_index=True, use_container_width=True)
         else:
             st.caption("No EngineeringFile instances in this subtree.")
+    if cat.quality:
+        st.markdown("**QualityResult**")
+        st.dataframe(pd.DataFrame(cat.quality), hide_index=True, use_container_width=True)
     if st.button("Build context pack", type="primary"):
         goto("context")
 
@@ -463,6 +477,167 @@ def step_context() -> None:
         mime="application/json",
     )
     st.caption(f"Created by {CREATOR}")
+    if st.button("Ask Atlas AI", type="primary"):
+        goto("atlas")
+
+
+def _merged_signals(cdf, selected: list[dict]) -> pd.DataFrame:
+    frames = []
+    for ts in selected:
+        frame = signal_frame(cdf, ts)
+        if frame.empty:
+            continue
+        col = frame.columns[0]
+        frames.append(frame.rename(columns={col: ts["name"]}))
+    if not frames:
+        return pd.DataFrame()
+    return pd.concat(frames, axis=1).sort_index()
+
+
+def step_canvas() -> None:
+    cat = catalog()
+    asset = st.session_state.selected_asset or (roots(cat)[0] if cat.assets else None)
+    if asset is None:
+        st.warning("Select equipment on the site graph first.")
+        return
+    header("Canvas", f"Time series and comparison charts for {asset['name']}")
+    related = related_rows(cat, asset["external_id"])
+    ts_list = related["timeseries"] or cat.timeseries[:6]
+    selected = st.multiselect(
+        "Signals on canvas",
+        ts_list,
+        default=ts_list[: min(3, len(ts_list))],
+        format_func=lambda t: f"{t['name']} ({t.get('unit') or '—'})",
+        key="canvas_signals",
+    )
+    cdf = client()
+    merged = _merged_signals(cdf, selected) if selected else pd.DataFrame()
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**Time series**")
+        if merged.empty:
+            st.caption("No datapoints for the selected signals.")
+        elif HAS_PLOTLY:
+            fig = go.Figure()
+            for col in merged.columns:
+                fig.add_trace(go.Scatter(x=merged.index, y=merged[col], name=col, mode="lines"))
+            st.plotly_chart(style_fig(fig, height=380), use_container_width=True)
+        else:
+            st.line_chart(merged)
+    with right:
+        st.markdown("**Latest values**")
+        if merged.empty:
+            st.caption("Select signals to compare latest readings.")
+        else:
+            latest = pd.DataFrame(
+                [{"signal": col, "latest": float(merged[col].dropna().iloc[-1])} for col in merged.columns]
+            )
+            if HAS_PLOTLY:
+                fig = px.bar(latest, x="signal", y="latest", color="signal", color_discrete_sequence=["#0f766e", "#d97706", "#0ea5e9", "#78716c"])
+                fig.update_layout(showlegend=False)
+                st.plotly_chart(style_fig(fig, height=380), use_container_width=True)
+            else:
+                st.bar_chart(latest.set_index("signal"))
+
+    batches = related.get("batches") or (cat.batches if st.session_state.industry in {"pharma", "both"} else [])
+    if batches:
+        st.markdown("**Golden batch vs current / prior**")
+        batch_df = pd.DataFrame(batches)
+        show_cols = [c for c in ("batch_id", "recipe", "status", "yield_pct", "cycle_h", "deviations") if c in batch_df.columns]
+        st.dataframe(batch_df[show_cols] if show_cols else batch_df, hide_index=True, use_container_width=True)
+        metric_df = pd.DataFrame(
+            [
+                {
+                    "batch": b.get("batch_id"),
+                    "Yield %": b.get("yield_pct"),
+                    "Cycle hours": b.get("cycle_h"),
+                    "Deviations": b.get("deviations"),
+                }
+                for b in batches
+            ]
+        )
+        c1, c2 = st.columns(2)
+        with c1:
+            long = metric_df.melt(id_vars="batch", var_name="metric", value_name="value")
+            if HAS_PLOTLY:
+                fig = px.bar(long, x="metric", y="value", color="batch", barmode="group", color_discrete_sequence=["#0f766e", "#d97706", "#0ea5e9"])
+                st.plotly_chart(style_fig(fig, height=360), use_container_width=True)
+            else:
+                st.bar_chart(metric_df.set_index("batch"))
+        with c2:
+            st.markdown("**DO overlay (golden vs current)**")
+            golden = synthetic_frame("HP-DS-23991", offset=8)
+            current = synthetic_frame("HP-DS-24018", offset=-4)
+            overlay = golden.rename(columns={golden.columns[0]: "Golden HP-DS-23991"}).join(
+                current.rename(columns={current.columns[0]: "Current HP-DS-24018"}),
+                how="outer",
+            )
+            if HAS_PLOTLY:
+                fig = go.Figure()
+                for col in overlay.columns:
+                    fig.add_trace(go.Scatter(x=overlay.index, y=overlay[col], name=col, mode="lines"))
+                st.plotly_chart(style_fig(fig, height=360), use_container_width=True)
+            else:
+                st.line_chart(overlay)
+    if st.button("Continue to quality and integrity", type="primary"):
+        goto("integrity")
+
+
+def step_atlas() -> None:
+    cat = catalog()
+    header("Atlas AI", "Ask about equipment, batches, deviations, and files on CatalystContext.")
+    if st.session_state.atlas_ready is None:
+        ok, detail = ensure_atlas_agent(client())
+        st.session_state.atlas_ready = ok
+        st.session_state.atlas_error = detail if not ok else ""
+    if st.session_state.atlas_ready:
+        st.caption(f"{ATLAS_AGENT_NAME} · `{ATLAS_AGENT_ID}`")
+    else:
+        st.warning(
+            "Atlas agent upsert/chat is not enabled on this project "
+            f"({st.session_state.get('atlas_error', '')}). Answers use loaded instances."
+        )
+    for msg in st.session_state.atlas_messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+    prompt = st.chat_input("Ask Atlas about BRX-04, golden batch, files, or deviations")
+    if prompt:
+        st.session_state.atlas_messages.append({"role": "user", "content": prompt})
+        reply = None
+        if st.session_state.atlas_ready:
+            try:
+                reply, cursor = atlas_chat(client(), prompt, st.session_state.atlas_cursor)
+                st.session_state.atlas_cursor = cursor
+            except Exception as exc:
+                st.session_state.atlas_ready = False
+                st.session_state.atlas_error = f"{type(exc).__name__}: {exc}"
+                reply = catalog_fallback(cat, prompt)
+        else:
+            reply = catalog_fallback(cat, prompt)
+        st.session_state.atlas_messages.append({"role": "assistant", "content": reply})
+        st.rerun()
+    cols = st.columns(3)
+    if cols[0].button("Golden vs current batch"):
+        st.session_state["_atlas_preset"] = "Compare golden batch HP-DS-23991 with current HP-DS-24018. What differs?"
+    if cols[1].button("Files on BRX-04"):
+        st.session_state["_atlas_preset"] = "Which engineering files are linked to bioreactor BRX-04?"
+    if cols[2].button("DO deviation"):
+        st.session_state["_atlas_preset"] = "What process deviation happened on BRX-04 and which tags matter?"
+    preset = st.session_state.pop("_atlas_preset", None)
+    if preset:
+        st.session_state.atlas_messages.append({"role": "user", "content": preset})
+        if st.session_state.atlas_ready:
+            try:
+                reply, cursor = atlas_chat(client(), preset, st.session_state.atlas_cursor)
+                st.session_state.atlas_cursor = cursor
+            except Exception as exc:
+                st.session_state.atlas_ready = False
+                st.session_state.atlas_error = f"{type(exc).__name__}: {exc}"
+                reply = catalog_fallback(cat, preset)
+        else:
+            reply = catalog_fallback(cat, preset)
+        st.session_state.atlas_messages.append({"role": "assistant", "content": reply})
+        st.rerun()
 
 
 def run() -> None:
@@ -474,8 +649,10 @@ def run() -> None:
             "model": step_model,
             "site": step_site,
             "signals": step_signals,
+            "canvas": step_canvas,
             "integrity": step_integrity,
             "context": step_context,
+            "atlas": step_atlas,
         }[st.session_state.step]()
     except Exception as exc:
         st.error(f"Could not load CatalystContext data: {type(exc).__name__}: {exc}")

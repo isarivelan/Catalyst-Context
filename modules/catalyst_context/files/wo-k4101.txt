@@ -1,0 +1,2 @@
+Work order: inspect K-4101 thrust bearing
+Linked equipment: 1st stage compressor K-4101

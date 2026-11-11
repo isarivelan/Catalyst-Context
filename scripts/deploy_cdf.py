@@ -41,7 +41,8 @@ SPACE = VARS["model_space"]
 MODEL_ID = VARS["model_external_id"]
 MODEL_VERSION = VARS["model_version"]
 RAW_DB = VARS["raw_db"]
-RAW_TABLES = ("equipment", "timeseries", "events")
+RAW_TABLES = ("equipment", "timeseries", "events", "files", "batches", "quality")
+FILES_DIR = MODULE / "files"
 SITE_KINDS = {"Site", "Field"}
 
 JOBS = (
@@ -69,6 +70,24 @@ JOBS = (
         "sql": TR_DIR / "tr_catalyst_raw_to_events.sql",
         "destination_type": "ProcessEvent",
     },
+    {
+        "external_id": "tr-catalyst-raw-to-files",
+        "name": "RAW files → EngineeringFile instances",
+        "sql": TR_DIR / "tr_catalyst_raw_to_files.sql",
+        "destination_type": "EngineeringFile",
+    },
+    {
+        "external_id": "tr-catalyst-raw-to-batches",
+        "name": "RAW batches → Batch instances",
+        "sql": TR_DIR / "tr_catalyst_raw_to_batches.sql",
+        "destination_type": "Batch",
+    },
+    {
+        "external_id": "tr-catalyst-raw-to-quality",
+        "name": "RAW quality → QualityResult instances",
+        "sql": TR_DIR / "tr_catalyst_raw_to_quality.sql",
+        "destination_type": "QualityResult",
+    },
 )
 
 _PLACEHOLDER = re.compile(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}")
@@ -90,7 +109,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--seed-instances",
         action="store_true",
-        help="Also upsert Site / Equipment / ProcessSignal / ProcessEvent nodes via the SDK",
+        help="Also upsert Site / Equipment / ProcessSignal / ProcessEvent / file / batch nodes via the SDK",
     )
     parser.add_argument("--skip-model", action="store_true", help="Skip space/container/view/data-model apply")
     parser.add_argument("--skip-app", action="store_true", help="Skip Streamlit app upload")
@@ -125,6 +144,12 @@ def read_csv(name: str) -> list[dict[str, str]]:
 
 
 def connect():
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv(ROOT / ".env")
+    except ImportError:
+        pass
     from catalyst_context.client import connect as cdf_connect
     from catalyst_context.config import load_cdf_settings
 
@@ -298,6 +323,12 @@ def step_run(client) -> None:
         log(f"     {job['external_id']}: {getattr(result, 'status', result)}")
 
 
+def _num(value: str | None, kind: str = "float"):
+    if value in (None, ""):
+        return None
+    return int(float(value)) if kind == "int" else float(value)
+
+
 def rel(space: str, ext: str | None):
     from cognite.client.data_classes.data_modeling import DirectRelationReference
 
@@ -386,8 +417,136 @@ def step_seed(client, version: str) -> None:
                 },
             )
         )
+    for row in read_csv("files"):
+        nodes.append(
+            node(
+                SPACE,
+                row["external_id"],
+                "EngineeringFile",
+                version,
+                {
+                    "name": row["name"],
+                    "mimeType": row.get("mime_type"),
+                    "kind": row.get("kind"),
+                    "equipment": rel(SPACE, row.get("asset_external_id")),
+                },
+            )
+        )
+    for row in read_csv("batches"):
+        nodes.append(
+            node(
+                SPACE,
+                row["external_id"],
+                "Batch",
+                version,
+                {
+                    "batchId": row.get("batch_id") or row["external_id"],
+                    "recipe": row.get("recipe"),
+                    "status": row.get("status"),
+                    "yieldPct": _num(row.get("yield_pct")),
+                    "cycleHours": _num(row.get("cycle_hours")),
+                    "deviations": _num(row.get("deviations"), "int"),
+                    "unit": rel(SPACE, row.get("unit_external_id")),
+                },
+            )
+        )
+    for row in read_csv("quality"):
+        nodes.append(
+            node(
+                SPACE,
+                row["external_id"],
+                "QualityResult",
+                version,
+                {
+                    "test": row.get("test"),
+                    "status": row.get("status"),
+                    "result": row.get("result"),
+                    "batch": rel(SPACE, row.get("batch_external_id")),
+                    "lab": rel(SPACE, row.get("lab_external_id")),
+                },
+            )
+        )
     client.data_modeling.instances.apply(nodes)
     log(f"     upserted {len(nodes)} instances")
+    step_seed_files(client)
+    step_seed_timeseries(client)
+    step_atlas_agent(client)
+
+
+def step_seed_files(client) -> None:
+    log("     Upload CDF files linked to equipment external IDs")
+    uploaded = 0
+    for row in read_csv("files"):
+        source = FILES_DIR / (row.get("source_file") or "")
+        payload = source.read_bytes() if source.is_file() else f"{row['name']}\n{row.get('asset_external_id')}\n".encode()
+        try:
+            client.files.upload_bytes(
+                payload,
+                name=row["name"],
+                external_id=row["external_id"],
+                mime_type=row.get("mime_type") or "text/plain",
+                overwrite=True,
+                metadata={
+                    "asset_external_id": row.get("asset_external_id") or "",
+                    "kind": row.get("kind") or "",
+                    "industry": row.get("industry") or "",
+                },
+            )
+            uploaded += 1
+        except Exception as exc:
+            log(f"     file {row['external_id']}: {exc}")
+    log(f"     uploaded {uploaded} files")
+
+
+def step_seed_timeseries(client) -> None:
+    import math
+    from datetime import datetime, timezone
+
+    from cognite.client.data_classes import TimeSeriesWrite
+    from cognite.client.exceptions import CogniteAPIError, CogniteDuplicatedError
+
+    log("     Seed classic time series + datapoints for canvas")
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    rows = read_csv("timeseries")
+    for row in rows:
+        ext = row["external_id"]
+        try:
+            client.time_series.create(
+                TimeSeriesWrite(
+                    external_id=ext,
+                    name=row["name"],
+                    unit=row.get("unit") or None,
+                    is_string=False,
+                    metadata={
+                        "industry": row.get("industry") or "",
+                        "asset_external_id": row.get("asset_external_id") or "",
+                    },
+                )
+            )
+        except (CogniteDuplicatedError, CogniteAPIError):
+            pass
+        seed = sum(ord(c) for c in ext)
+        dps = []
+        for i in range(96):
+            t = now_ms - (96 - i) * 15 * 60 * 1000
+            val = 40 + (seed % 15) + 6 * math.sin(i / 8)
+            dps.append((t, val))
+        try:
+            client.time_series.data.insert(dps, external_id=ext)
+        except Exception as exc:
+            log(f"     datapoints {ext}: {exc}")
+    log(f"     time series datapoints: {len(rows)} tags")
+
+
+def step_atlas_agent(client) -> None:
+    from catalyst_context.atlas import ATLAS_AGENT_ID, ensure_atlas_agent
+
+    log(f"     Upsert Atlas AI agent `{ATLAS_AGENT_ID}`")
+    ok, detail = ensure_atlas_agent(client)
+    if ok:
+        log(f"     agent ready: {detail}")
+    else:
+        log(f"     agent skipped ({detail})")
 
 
 def plan() -> None:

@@ -1,0 +1,3 @@
+P&ID BRX-04 — Helix Park Biologics USP Suite A
+Linked equipment: Bioreactor BRX-04 / Agitator AG-04
+Sparge, overlay, jacket, DO, pH, and temperature loops on the 2000 L vessel.

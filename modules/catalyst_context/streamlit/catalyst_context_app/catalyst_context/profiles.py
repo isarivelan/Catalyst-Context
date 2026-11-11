@@ -61,6 +61,8 @@ FLOW_STEPS = (
     ("model", "Data model"),
     ("site", "Site graph"),
     ("signals", "Process signals"),
+    ("canvas", "Canvas"),
     ("integrity", "Quality & integrity"),
     ("context", "Context pack"),
+    ("atlas", "Atlas AI"),
 )

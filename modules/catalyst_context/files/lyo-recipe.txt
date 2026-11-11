@@ -1,0 +1,3 @@
+Lyophilization recipe LYO-03
+Shelf freeze, primary dry, secondary dry.
+Linked equipment: Lyophilizer LYO-03

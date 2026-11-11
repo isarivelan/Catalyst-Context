@@ -1,0 +1,3 @@
+Deviation DV-24018-03
+DO dropped below 30% for 18 minutes on BRX-04 during HP-DS-24018.
+Linked files: P&ID BRX-04, eBR HP-DS-24018.

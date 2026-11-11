@@ -16,6 +16,7 @@ class Catalog:
     files: list[dict] = field(default_factory=list)
     relationships: list[dict] = field(default_factory=list)
     batches: list[dict] = field(default_factory=list)
+    quality: list[dict] = field(default_factory=list)
     counts: dict[str, int] = field(default_factory=dict)
     project: str = ""
     space: str = "catalyst_context"
@@ -33,6 +34,14 @@ class Catalog:
         ts = [t for t in keep(self.timeseries) if not t.get("asset_external_id") or t["asset_external_id"] in ids]
         events = [e for e in keep(self.events) if not e.get("asset_external_id") or e["asset_external_id"] in ids]
         files = [f for f in keep(self.files) if not f.get("asset_external_id") or f["asset_external_id"] in ids]
+        batches = [b for b in self.batches if not b.get("unit") or b["unit"] in ids]
+        quality = [
+            q
+            for q in self.quality
+            if q.get("lab") in ids or q.get("batch") in {b["external_id"] for b in batches}
+        ]
+        if industry != "pharma":
+            batches, quality = [], []
         return Catalog(
             assets=assets,
             timeseries=ts,
@@ -43,7 +52,8 @@ class Catalog:
                 for r in self.relationships
                 if r.get("source_external_id") in ids or r.get("target_external_id") in ids
             ],
-            batches=self.batches if industry == "pharma" else [],
+            batches=batches,
+            quality=quality,
             counts=self.counts,
             project=self.project,
             space=self.space,
@@ -83,6 +93,7 @@ def related_rows(catalog: Catalog, asset_ext: str) -> dict[str, list[dict]]:
         "timeseries": [t for t in catalog.timeseries if t.get("asset_external_id") in scope],
         "events": [e for e in catalog.events if e.get("asset_external_id") in scope],
         "files": [f for f in catalog.files if f.get("asset_external_id") in scope],
+        "batches": [b for b in catalog.batches if b.get("unit") in scope],
         "relationships": [
             r
             for r in catalog.relationships
@@ -103,7 +114,8 @@ def context_pack(catalog: Catalog, asset: dict, industry: str) -> dict:
         "events": related["events"],
         "files": related["files"],
         "relationships": related["relationships"],
-        "batches": catalog.batches if industry in {"pharma", "both"} else [],
+        "batches": related["batches"] if industry in {"pharma", "both"} else [],
+        "quality": catalog.quality if industry in {"pharma", "both"} else [],
     }
 
 

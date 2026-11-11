@@ -1,0 +1,13 @@
+externalId: tr-catalyst-raw-to-batches
+name: RAW batches → Batch instances
+destination:
+  type: instances
+  instanceSpace: {{ instance_space }}
+  dataModel:
+    space: {{ model_space }}
+    externalId: {{ model_external_id }}
+    version: {{ model_version }}
+    destinationType: Batch
+conflictMode: upsert
+isPublic: true
+ignoreNullFields: true

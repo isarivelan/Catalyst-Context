@@ -1,0 +1,10 @@
+key,external_id,name,mime_type,kind,asset_external_id,industry,source_file
+pharma.file.pid-brx,pharma.file.pid-brx,P&ID BRX-04,application/pdf,P&ID,pharma-unit-bioreactor,pharma,pid-brx-04.txt
+pharma.file.ebr,pharma.file.ebr,eBR HP-DS-24018,application/pdf,eBR,pharma-unit-bioreactor,pharma,ebr-hp-ds-24018.txt
+pharma.file.sop-ag,pharma.file.sop-ag,SOP Agitator AG-04,application/pdf,SOP,pharma-eq-agitator,pharma,sop-agitator.txt
+pharma.file.coa,pharma.file.coa,CoA HP-DS-23991,application/pdf,CoA,pharma-lab-qc,pharma,coa-hp-ds-23991.txt
+pharma.file.dev,pharma.file.dev,Deviation DV-24018-03,application/pdf,Deviation,pharma-unit-bioreactor,pharma,deviation-do.txt
+pharma.file.pid-chr,pharma.file.pid-chr,P&ID CHR-12,application/pdf,P&ID,pharma-unit-chromatography,pharma,pid-chr-12.txt
+pharma.file.lyo-recipe,pharma.file.lyo-recipe,Lyo recipe LYO-03,application/pdf,Recipe,pharma-unit-lyo,pharma,lyo-recipe.txt
+og.file.pid-k4101,og.file.pid-k4101,P&ID K-4101,application/pdf,P&ID,og-eq-compressor,oil_gas,pid-k4101.txt
+og.file.wo,og.file.wo,WO inspect thrust bearing,application/pdf,WorkOrder,og-eq-compressor,oil_gas,wo-k4101.txt

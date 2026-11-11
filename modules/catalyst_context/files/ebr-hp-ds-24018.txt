@@ -1,0 +1,4 @@
+Electronic batch record HP-DS-24018
+Recipe: mAb-FedBatch-v4
+Unit: BRX-04
+Status: In process. Deviation DV-24018-03 (DO excursion) open.

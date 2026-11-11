@@ -3,6 +3,11 @@ pharma.evt.batch-start,pharma.evt.batch-start,Batch,PhaseStart,Batch HP-DS-24018
 pharma.evt.do-excursion,pharma.evt.do-excursion,Deviation,Process,DO dropped below 30% for 18 minutes,pharma-unit-bioreactor,pharma
 pharma.evt.qc-fail,pharma.evt.qc-fail,QualityResult,OOS,Endotoxin OOS on in-process sample,pharma-lab-qc,pharma
 pharma.evt.golden,pharma.evt.golden,Batch,Golden,Reference golden batch HP-DS-23991,pharma-unit-bioreactor,pharma
+pharma.evt.media-release,pharma.evt.media-release,Batch,Release,Media lot MP-441 released to USP,pharma-unit-media,pharma
+pharma.evt.harvest,pharma.evt.harvest,Batch,PhaseStart,Harvest of HP-DS-24018,pharma-unit-harvest,pharma
+pharma.evt.lyo-cycle,pharma.evt.lyo-cycle,Batch,PhaseStart,Lyophilization cycle LYO-03-118,pharma-unit-lyo,pharma
+pharma.evt.fill-hold,pharma.evt.fill-hold,Deviation,Process,Filler pause 6 min — isolator glove change,pharma-unit-filler,pharma
+pharma.evt.coa,pharma.evt.coa,QualityResult,CoA,CoA issued for HP-DS-23991,pharma-lab-qc,pharma
 og.evt.high-vib,og.evt.high-vib,Alarm,Condition,Compressor vibration above advisory,og-eq-compressor,oil_gas
 og.evt.well-perturb,og.evt.well-perturb,Production,WellPerturbation,Well test window for CGR/WGR back-allocation,og-field-harbor,oil_gas
 og.evt.wo,og.evt.wo,Maintenance,WorkOrder,Inspect K-4101 thrust bearing,og-eq-compressor,oil_gas

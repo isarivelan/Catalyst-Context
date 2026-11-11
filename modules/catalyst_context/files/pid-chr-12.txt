@@ -1,0 +1,3 @@
+P&ID CHR-12 — Protein A capture skid
+Linked equipment: Chromatography skid CHR-12
+UV 280 nm and column delta-P tags.

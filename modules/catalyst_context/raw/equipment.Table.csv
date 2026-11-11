@@ -4,9 +4,16 @@ pharma-area-usp,pharma-area-usp,USP Suite A,Area,pharma,Upstream process area,ph
 pharma-cell-brx,pharma-cell-brx,Process cell BRX-04,ProcessCell,pharma,Fed-batch mammalian cell culture,pharma-area-usp,pharma-site-helix,
 pharma-unit-bioreactor,pharma-unit-bioreactor,Bioreactor BRX-04,Unit,pharma,2000 L stainless bioreactor,pharma-cell-brx,pharma-site-helix,high
 pharma-eq-agitator,pharma-eq-agitator,Agitator AG-04,EquipmentModule,pharma,Impeller and drive,pharma-unit-bioreactor,pharma-site-helix,high
+pharma-unit-harvest,pharma-unit-harvest,Harvest hold HV-04,Unit,pharma,Clarified harvest hold tank,pharma-area-usp,pharma-site-helix,
+pharma-area-media,pharma-area-media,Media prep,Area,pharma,Media and buffer preparation,pharma-site-helix,pharma-site-helix,
+pharma-unit-media,pharma-unit-media,Media tank MT-02,Unit,pharma,2000 L media hold,pharma-area-media,pharma-site-helix,
 pharma-area-dsp,pharma-area-dsp,DSP Suite B,Area,pharma,Downstream purification,pharma-site-helix,pharma-site-helix,
 pharma-unit-chromatography,pharma-unit-chromatography,Chromatography skid CHR-12,Unit,pharma,Protein A capture,pharma-area-dsp,pharma-site-helix,
 pharma-unit-ufdf,pharma-unit-ufdf,UF/DF skid UF-07,Unit,pharma,Ultrafiltration / diafiltration,pharma-area-dsp,pharma-site-helix,
+pharma-unit-vf,pharma-unit-vf,Viral filter VF-09,Unit,pharma,Virus filtration,pharma-area-dsp,pharma-site-helix,
+pharma-area-fill,pharma-area-fill,Fill-finish Suite C,Area,pharma,Aseptic filling and lyophilization,pharma-site-helix,pharma-site-helix,
+pharma-unit-filler,pharma-unit-filler,Vial filler VF-01,Unit,pharma,Isolator filling line,pharma-area-fill,pharma-site-helix,high
+pharma-unit-lyo,pharma-unit-lyo,Lyophilizer LYO-03,Unit,pharma,Shelf lyophilizer,pharma-area-fill,pharma-site-helix,high
 pharma-lab-qc,pharma-lab-qc,QC lab LIMS,Area,pharma,In-process and release testing,pharma-site-helix,pharma-site-helix,
 og-field-harbor,og-field-harbor,Harbor Ridge Field,Field,oil_gas,Offshore production analog,,og-field-harbor,
 og-inst-platform,og-inst-platform,Harbor Ridge Platform,Installation,oil_gas,Manned installation,og-field-harbor,og-field-harbor,

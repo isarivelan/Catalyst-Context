@@ -1,0 +1,3 @@
+SOP-AG-04 Agitator start-up and seal check
+Equipment: Agitator AG-04 on bioreactor BRX-04
+Criticality: high

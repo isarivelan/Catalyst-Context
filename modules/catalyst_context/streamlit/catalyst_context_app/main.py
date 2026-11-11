@@ -40,6 +40,13 @@ from catalyst_context.atlas import (
     catalog_fallback,
     ensure_atlas_agent,
 )
+from catalyst_context.charts import (
+    in_fusion_runtime,
+    svg_bar_chart,
+    svg_grouped_bar,
+    svg_line_chart,
+    svg_network,
+)
 from catalyst_context.client import get_client, load_model_catalog, signal_frame, synthetic_frame
 from catalyst_context.profiles import FLOW_STEPS, PROFILES
 
@@ -229,6 +236,75 @@ def step_model() -> None:
         goto("site")
 
 
+def use_plotly() -> bool:
+    return HAS_PLOTLY and not in_fusion_runtime()
+
+
+def show_svg(markup: str, height: int = 360) -> None:
+    if not markup:
+        return
+    try:
+        import streamlit.components.v1 as components
+
+        components.html(markup, height=height + 28)
+    except Exception:
+        st.markdown(markup, unsafe_allow_html=True)
+
+
+def show_lines(frame: pd.DataFrame, height: int = 380) -> None:
+    if frame is None or frame.empty:
+        return
+    if use_plotly():
+        fig = go.Figure()
+        for col in frame.columns:
+            fig.add_trace(go.Scatter(x=frame.index, y=frame[col], name=str(col), mode="lines"))
+        st.plotly_chart(style_fig(fig, height=height), use_container_width=True)
+        return
+    show_svg(svg_line_chart(frame, height=height), height=height)
+
+
+def show_bars(labels: list[str], values: list[float], height: int = 360) -> None:
+    if use_plotly():
+        fig = px.bar(
+            x=labels,
+            y=values,
+            color=labels,
+            color_discrete_sequence=["#0f766e", "#d97706", "#0ea5e9", "#78716c"],
+        )
+        fig.update_layout(showlegend=False)
+        fig.update_xaxes(title="")
+        fig.update_yaxes(title="")
+        st.plotly_chart(style_fig(fig, height=height), use_container_width=True)
+        return
+    show_svg(svg_bar_chart(labels, values, height=height), height=height)
+
+
+def show_grouped_bars(metric_df: pd.DataFrame, height: int = 360) -> None:
+    if metric_df.empty:
+        return
+    if use_plotly():
+        long = metric_df.melt(id_vars="batch", var_name="metric", value_name="value")
+        fig = px.bar(
+            long,
+            x="metric",
+            y="value",
+            color="batch",
+            barmode="group",
+            color_discrete_sequence=["#0f766e", "#d97706", "#0ea5e9"],
+        )
+        st.plotly_chart(style_fig(fig, height=height), use_container_width=True)
+        return
+    series = {col: metric_df[col].tolist() for col in metric_df.columns if col != "batch"}
+    show_svg(svg_grouped_bar(metric_df["batch"].astype(str).tolist(), series, height=height), height=height)
+
+
+def show_network(pack: dict) -> None:
+    if use_plotly():
+        st.plotly_chart(context_network(pack), use_container_width=True)
+        return
+    show_svg(svg_network(pack), height=420)
+
+
 def style_fig(fig, height: int = 400):
     fig.update_layout(
         height=height,
@@ -345,7 +421,7 @@ def step_site() -> None:
         st.markdown(f"**{unit['name']}**")
         st.caption(unit.get("description") or "")
     with right:
-        if HAS_PLOTLY and cat.assets:
+        if use_plotly() and cat.assets:
             st.plotly_chart(hierarchy_figure(cat), use_container_width=True)
         st.dataframe(asset_tree_table(cat), hide_index=True, use_container_width=True)
     if st.button("Continue to process signals", type="primary"):
@@ -389,7 +465,7 @@ def step_signals() -> None:
     )
     if frames:
         merged = pd.concat(frames, axis=1).sort_index()
-        st.line_chart(merged)
+        show_lines(merged)
         st.download_button(
             "Download selected signals (CSV)",
             timeseries_csv(merged),
@@ -464,9 +540,8 @@ def step_context() -> None:
             ("Relationships", len(pack["relationships"])),
         ]
     )
-    if HAS_PLOTLY:
-        st.plotly_chart(context_network(pack), use_container_width=True)
-    elif pack["relationships"]:
+    show_network(pack)
+    if not use_plotly() and pack["relationships"]:
         st.dataframe(pd.DataFrame(pack["relationships"]), hide_index=True, use_container_width=True)
     with st.expander("Inspect JSON pack"):
         st.json(pack)
@@ -517,13 +592,8 @@ def step_canvas() -> None:
         st.markdown("**Time series**")
         if merged.empty:
             st.caption("No datapoints for the selected signals.")
-        elif HAS_PLOTLY:
-            fig = go.Figure()
-            for col in merged.columns:
-                fig.add_trace(go.Scatter(x=merged.index, y=merged[col], name=col, mode="lines"))
-            st.plotly_chart(style_fig(fig, height=380), use_container_width=True)
         else:
-            st.line_chart(merged)
+            show_lines(merged)
     with right:
         st.markdown("**Latest values**")
         if merged.empty:
@@ -532,12 +602,7 @@ def step_canvas() -> None:
             latest = pd.DataFrame(
                 [{"signal": col, "latest": float(merged[col].dropna().iloc[-1])} for col in merged.columns]
             )
-            if HAS_PLOTLY:
-                fig = px.bar(latest, x="signal", y="latest", color="signal", color_discrete_sequence=["#0f766e", "#d97706", "#0ea5e9", "#78716c"])
-                fig.update_layout(showlegend=False)
-                st.plotly_chart(style_fig(fig, height=380), use_container_width=True)
-            else:
-                st.bar_chart(latest.set_index("signal"))
+            show_bars(latest["signal"].tolist(), latest["latest"].tolist())
 
     batches = related.get("batches") or (cat.batches if st.session_state.industry in {"pharma", "both"} else [])
     if batches:
@@ -558,12 +623,7 @@ def step_canvas() -> None:
         )
         c1, c2 = st.columns(2)
         with c1:
-            long = metric_df.melt(id_vars="batch", var_name="metric", value_name="value")
-            if HAS_PLOTLY:
-                fig = px.bar(long, x="metric", y="value", color="batch", barmode="group", color_discrete_sequence=["#0f766e", "#d97706", "#0ea5e9"])
-                st.plotly_chart(style_fig(fig, height=360), use_container_width=True)
-            else:
-                st.bar_chart(metric_df.set_index("batch"))
+            show_grouped_bars(metric_df)
         with c2:
             st.markdown("**DO overlay (golden vs current)**")
             golden = synthetic_frame("HP-DS-23991", offset=8)
@@ -572,13 +632,7 @@ def step_canvas() -> None:
                 current.rename(columns={current.columns[0]: "Current HP-DS-24018"}),
                 how="outer",
             )
-            if HAS_PLOTLY:
-                fig = go.Figure()
-                for col in overlay.columns:
-                    fig.add_trace(go.Scatter(x=overlay.index, y=overlay[col], name=col, mode="lines"))
-                st.plotly_chart(style_fig(fig, height=360), use_container_width=True)
-            else:
-                st.line_chart(overlay)
+            show_lines(overlay, height=360)
     if st.button("Continue to quality and integrity", type="primary"):
         goto("integrity")
 

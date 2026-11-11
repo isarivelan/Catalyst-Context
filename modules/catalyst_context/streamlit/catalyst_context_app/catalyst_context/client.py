@@ -301,15 +301,21 @@ def synthetic_frame(external_id: str, hours: int = 72, offset: float = 0.0):
 
 
 def signal_frame(client, ts: dict):
+    import sys
+
     import pandas as pd
 
     tag = ts.get("external_tag") or ts.get("external_id")
     if not tag:
         return pd.DataFrame()
-    try:
-        frame = retrieve_datapoints(client, tag)
-        if frame is not None and not frame.empty:
-            return frame
-    except Exception:
-        pass
+    # Fusion Streamlit (Pyodide) often cannot retrieve classic datapoints;
+    # synthetic series keep the canvas visible.
+    in_pyodide = sys.platform == "emscripten" or "pyodide" in sys.modules
+    if not in_pyodide:
+        try:
+            frame = retrieve_datapoints(client, tag)
+            if frame is not None and not frame.empty:
+                return frame
+        except Exception:
+            pass
     return synthetic_frame(tag)

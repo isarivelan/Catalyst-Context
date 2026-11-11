@@ -6,6 +6,13 @@ Created by Isarivelan Mani.
 
 from __future__ import annotations
 
+try:
+    import pyodide_http
+
+    pyodide_http.patch_all()
+except Exception:
+    pass
+
 import pandas as pd
 import streamlit as st
 
@@ -93,14 +100,9 @@ def goto(step: str) -> None:
     st.rerun()
 
 
-@st.cache_resource(show_spinner=False)
-def _cached_client():
-    return get_client()
-
-
 def client():
     if st.session_state.client is None:
-        st.session_state.client = _cached_client()
+        st.session_state.client = get_client()
     return st.session_state.client
 
 

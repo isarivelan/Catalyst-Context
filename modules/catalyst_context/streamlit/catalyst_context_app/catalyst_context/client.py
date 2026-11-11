@@ -9,7 +9,17 @@ from catalyst_context.catalog import Catalog
 from catalyst_context.config import CdfSettings, load_cdf_settings
 
 
+def _patch_pyodide_http() -> None:
+    try:
+        import pyodide_http
+
+        pyodide_http.patch_all()
+    except Exception:
+        pass
+
+
 def get_client():
+    _patch_pyodide_http()
     try:
         from cognite.client import CogniteClient
     except ModuleNotFoundError as exc:
